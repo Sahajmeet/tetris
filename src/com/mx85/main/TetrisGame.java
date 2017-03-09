@@ -1,32 +1,3 @@
-package com.mx85.main;
-
-import javax.swing.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
-public class TetrisGame extends JFrame {
-
-    private GameLooper gameLooper;
-    private Timer timer;
-
-    private int normalSpeed = 200;
-    private int highSpeed = 50;
-
-    private JPanel boardPanel = new JPanel();
-    private ResultPanel resultPanel = new ResultPanel();
-
-    private JButton[][] cells = new JButton[20][20];
-
-    public TetrisGame() {
-        super("Tetris");
-        this.setSize(400, 500);
-        this.setVisible(true);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        try {
-            UIManager.setLookAndFeel(new MetalLookAndFeel());
 /*
 Authors, Github users: mx85, Zhang-Veni
 Commented by: Sahajmeet Bhutta
@@ -238,105 +209,54 @@ public class TetrisGame extends JFrame {
                 g.fillRect(0,30,10,10);
             }
         }
-            private com.mx85.main.Shape.PIECE nextPiece;
-
-            public void setPieceType(com.mx85.main.Shape.PIECE piece) {
-                this.nextPiece = piece;
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                switch (nextPiece) {
-                    case CUBEPIECE:
-                        paintCubePiece(g);
-                        break;
-                    case LONGPIECE:
-                        paintLongPiece(g);
-                        break;
-                    case LPIECE:
-                        paintLPiece(g);
-                        break;
-                    case TPIECE:
-                        paintTPiece(g);
-                        break;
-                    case ZPIECE:
-                        paintZPiece(g);
-                        break;
-                }
-            }
-
-            private void paintLPiece(Graphics g) {
-                g.setColor(Color.red);
-                g.fillRect(0,0,10,10);
-                g.fillRect(0,10,10,10);
-                g.fillRect(0,20,10,10);
-                g.fillRect(10,20,10,10);
-            }
-
-            private void paintTPiece(Graphics g) {
-                g.setColor(Color.yellow);
-                g.fillRect(0,0,10,10);
-                g.fillRect(10,0,10,10);
-                g.fillRect(20,0,10,10);
-                g.fillRect(10,10,10,10);
-
-            }
-
-            private void paintZPiece(Graphics g) {
-                g.setColor(Color.blue);
-                g.fillRect(0,0,10,10);
-                g.fillRect(10,0,10,10);
-                g.fillRect(10,10,10,10);
-                g.fillRect(20,10,10,10);
-            }
-
-            private void paintCubePiece(Graphics g) {
-                g.setColor(Color.orange);
-                g.fillRect(0,0,10,10);
-                g.fillRect(10,0,10,10);
-                g.fillRect(0,10,10,10);
-                g.fillRect(10,10,10,10);
-            }
-
-            private void paintLongPiece(Graphics g) {
-                g.setColor(Color.green);
-                g.fillRect(0,0,10,10);
-                g.fillRect(0,10,10,10);
-                g.fillRect(0,20,10,10);
-                g.fillRect(0,30,10,10);
-            }
-        }
-
+       //add points scored and change the label which displays the score in the JPanel
         public void addPoints(int points) {
             this.points += points;
             pointsLabel.setText(Integer.toString(this.points));
         }
     }
 
+    //this class essentially implements an update method, it will perform a series of actions to update the board
     private class GameLooper implements ActionListener {
 
         private com.mx85.main.Shape currentShape;
         private com.mx85.main.Shape nextShape;
 
+        /*create the next piece by choosing a random piece and the next piece from the 
+        * PieceFactory class, and letting the player know which piece will fall next. 
+        * PieceFactory includes logic for creating the game pieces and testing whether or not
+        * the piece can be drawn on the board, ie. is there another piece in the way, 
+        * redrawing the pieces in the new position, and erasing the old piece position
+        */
         public GameLooper() {
             currentShape = PieceFactory.createRandomPiece();
             nextShape = PieceFactory.createRandomPiece();
             resultPanel.setPieceType(nextShape.getPieceType());
         }
 
+        //this function continually calls the dropPiece function every fram
         @Override
         public void actionPerformed(ActionEvent e) {
             dropPiece();
         }
 
+        /*this function calls the move function in the same class to move the piece down on the board
+        * making it seem like the piece is dropping down
+        * it then repaints the piece to actually draw it in the new position
+        */
         public void dropPiece() {
             move(com.mx85.main.Shape.DIRECTION.DOWN);
             repaint();
         }
 
+        //this function implements movement of falling pieces
         public void move(com.mx85.main.Shape.DIRECTION direction) {
             switch (direction) {
                 case DOWN:
+                    /*this branch checks if there is no space to move the piece into the cells below it
+                    * if there is no space, it makes the next shape in the queue begin to fall and chooses another shape to be the next shape
+                    * it sets the falling of the next shape to be of normal speed
+                    */
                     if(!currentShape.move(com.mx85.main.Shape.DIRECTION.DOWN, cells)) {
                         currentShape = nextShape;
                         nextShape = PieceFactory.createRandomPiece();
@@ -346,9 +266,10 @@ public class TetrisGame extends JFrame {
                         {
                         	timer.stop();
                         }
-                        checkRows();
+                        checkRows(); //the checkrows function is called to check whether or not the player has scored a point by clearing a line of tiles
                     }
                     break;
+                    //move the pieces left or right or rotate them
                 case RIGHT:
                     currentShape.move(com.mx85.main.Shape.DIRECTION.RIGHT, cells);
                     break;
@@ -362,6 +283,9 @@ public class TetrisGame extends JFrame {
             }
         }
 
+        /*this fucntion checks if all rows of the game space is full of tiles (not grey)
+        * if they are grey (there is not a tile there), the player does not score
+        */
         private void checkRows() {
             for(int y = 0; y < 20; y++) {
                 boolean scored = true;
@@ -370,6 +294,7 @@ public class TetrisGame extends JFrame {
                        scored = false;
                    }
                 }
+                //if the player scores, delete the row of tiles by calling the deleterow function and add 10 points to the score
                 if(scored) {
                     deleteRow(y);
                     y = y - 1;
@@ -378,6 +303,7 @@ public class TetrisGame extends JFrame {
             }
         }
 
+        //this function deletes the row by setting the background color or the tile to the correct colour, the color of a tile or the colour of the board
         private void deleteRow(int start) {
             for(int y = start; y > 0; y--) {
                 for(int x = 0; x < 20; x++) {
@@ -388,6 +314,11 @@ public class TetrisGame extends JFrame {
                 }
             }
         }
+        
+        /*this function takes the currently falling shape and checks if it falls in a place which is completely on the board
+        * if the piece is not completely on the board, the game is over and the function returns true,
+        * ie. the game is over, to the calling function
+        */
         public boolean isGameOver(Shape currentShape)
         {
         	
