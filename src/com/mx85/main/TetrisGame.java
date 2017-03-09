@@ -27,16 +27,63 @@ public class TetrisGame extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         try {
             UIManager.setLookAndFeel(new MetalLookAndFeel());
+/*
+Authors, Github users: mx85, Zhang-Veni
+Commented by: Sahajmeet Bhutta
+Commented on: Monday March 6th 2017
+*/
+
+
+package com.mx85.main;
+
+// import relevant libraries 
+import javax.swing.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+
+//define main class to create the Tetris game and perform all logic in the game
+//also creates the board for players to see, movement of pieces on board, and scoring logic
+public class TetrisGame extends JFrame {
+
+/*define all relevant variables
+* all private classes and variables are private as opposed to public in order to reduce coupling
+*/
+    private GameLooper gameLooper; //GameLooper type is defined later in this file, gameLooper is an instance of GameLooper allowing repeated update of the board
+    private Timer timer; //this variable will be used to speed up and slow down the speed of the falling tiles
+
+    private int normalSpeed = 200; //the normal falling speed of tiles
+    private int highSpeed = 50; //quicker flling speed of tiles
+
+    private JPanel boardPanel = new JPanel(); //variable for theactual frame where the board will be seen
+    private ResultPanel resultPanel = new ResultPanel(); //will display the score of the game and the next piece
+
+    private JButton[][] cells = new JButton[20][20]; /*each unit on the screen is a cell and will be used to depict whether 
+    * or not the cell has a part of a piece on it, or if there are points to be allotted; implemented as a button 
+	*/
+    //tetris game constructor
+    public TetrisGame() {
+        super("Tetris");
+        this.setSize(400, 500); //set the size of the board
+        this.setVisible(true); //make sure the board is visible
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //close the game when the x button in the top right is clicked
+        try {
+            UIManager.setLookAndFeel(new MetalLookAndFeel()); //make the user interface metallic-looking
         }
-        catch(Exception e) {}
+        catch(Exception e) {} //catch some kind of exception
 
-        this.setLayout(new GridLayout());
-
+        //set layouts of border and grid
+        this.setLayout(new GridLayout()); 
 
         this.setLayout(new BorderLayout());
-        this.add(boardPanel, BorderLayout.CENTER);
-        this.add(resultPanel, BorderLayout.SOUTH);
+        this.add(boardPanel, BorderLayout.CENTER); //centre the board within the border
+        this.add(resultPanel, BorderLayout.SOUTH); // display the results near the bottom of the border
 
+        /*a listener on keyboard key presses, with left and right keys controlling the direction of movement of a falling piece
+        * (referred to as Shape), up to rotate the orientation of the piece, and down to speed up the rate at which the piece falls
+        */
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
                 .addKeyEventDispatcher(new KeyEventDispatcher() {
                     @Override
@@ -47,19 +94,19 @@ public class TetrisGame extends JFrame {
                                 timer.start();
                             switch (key) {
                                 case KeyEvent.VK_LEFT:
-                                    gameLooper.move(com.mx85.main.Shape.DIRECTION.LEFT);
+                                    gameLooper.move(com.mx85.main.Shape.DIRECTION.LEFT); //move the tetris piece left upon left key press
                                     break;
                                 case KeyEvent.VK_RIGHT:
-                                    gameLooper.move(com.mx85.main.Shape.DIRECTION.RIGHT);
+                                    gameLooper.move(com.mx85.main.Shape.DIRECTION.RIGHT); //move the tetris piece right upon right key press
                                     break;
                                 case KeyEvent.VK_UP:
-                                    gameLooper.move(com.mx85.main.Shape.DIRECTION.ROTATE);
+                                    gameLooper.move(com.mx85.main.Shape.DIRECTION.ROTATE); //rotate the tetris piece upon up key press
                                     break;
                                 case KeyEvent.VK_DOWN:
-                                    timer.setDelay(highSpeed);
+                                    timer.setDelay(highSpeed); //speed up the falling of the tetris piece upon down key press
                                     break;
-                                case KeyEvent.VK_P:
-                                    timer.stop();
+                                case KeyEvent.VK_P: 
+                                    timer.stop(); //pause the game when P key is pressed, as all movement is tied to the timer
                                     break;
                             }
                         }
@@ -67,6 +114,7 @@ public class TetrisGame extends JFrame {
                     }
                 });
 
+        //actually constucting the cells of the board in a 2D 20x20 array cells, making the buttons visible, colouring them opaque light grey, and then actually adding the cells to the board
         boardPanel.setLayout(new GridLayout(20,20));
         for(int i = 0; i < cells.length; i++) {
             for(int j = 0; j < cells[i].length; j++) {
@@ -78,6 +126,7 @@ public class TetrisGame extends JFrame {
             }
         }
 
+       //create a GameLooper, which is this game's update method (see below)
        gameLooper = new GameLooper();
        timer = new Timer(normalSpeed, gameLooper);
        timer.start();
