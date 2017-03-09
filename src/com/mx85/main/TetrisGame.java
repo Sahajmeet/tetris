@@ -131,7 +131,7 @@ public class TetrisGame extends JFrame {
        timer = new Timer(normalSpeed, gameLooper);
        timer.start();
     }
-
+    //java label displaying the score and next tetris piece
     private class ResultPanel extends JPanel {
 
         private JLabel pointsTextLabel = new JLabel("Points: ");
@@ -143,6 +143,7 @@ public class TetrisGame extends JFrame {
         public ResultPanel() {
             setPreferredSize(new Dimension(40, 60));
 
+            //add labels to the panel of scores and next pieces
             this.setLayout(new GridLayout(2, 2));
             this.add(pointsTextLabel);
             this.add(pointsLabel);
@@ -150,12 +151,93 @@ public class TetrisGame extends JFrame {
             this.add(nextType);
         }
 
+        //choose the kind of piece which will be the next piece to fall
         public void setPieceType(com.mx85.main.Shape.PIECE piece) {
             nextType.setPieceType(piece);
         }
 
+        //choose the kind of piece which will be the next piece to fall
         private class NextPieceType extends JComponent {
 
+            private com.mx85.main.Shape.PIECE nextPiece;
+
+            public void setPieceType(com.mx85.main.Shape.PIECE piece) {
+                this.nextPiece = piece;
+            }
+
+            /*creating the pieces to be displayed dependent on which piece is the next piece
+            * the possible pieces are: cube, long, L-shaped, T-shaped, and Z-shaped
+            */
+            @Override
+            protected void paintComponent(Graphics g) {
+                switch (nextPiece) {
+                    case CUBEPIECE:
+                        paintCubePiece(g);
+                        break;
+                    case LONGPIECE:
+                        paintLongPiece(g);
+                        break;
+                    case LPIECE:
+                        paintLPiece(g);
+                        break;
+                    case TPIECE:
+                        paintTPiece(g);
+                        break;
+                    case ZPIECE:
+                        paintZPiece(g);
+                        break;
+                }
+            }
+
+            /*Once the switch-case chooses a piece type based on the nextPiece 
+            * these functions actually draw the pieces
+            */
+            //draw a red L-shaped piece
+            private void paintLPiece(Graphics g) {
+                g.setColor(Color.red);
+                g.fillRect(0,0,10,10);
+                g.fillRect(0,10,10,10);
+                g.fillRect(0,20,10,10);
+                g.fillRect(10,20,10,10);
+            }
+
+            //draw a yellow T-shaped piece
+            private void paintTPiece(Graphics g) {
+                g.setColor(Color.yellow);
+                g.fillRect(0,0,10,10);
+                g.fillRect(10,0,10,10);
+                g.fillRect(20,0,10,10);
+                g.fillRect(10,10,10,10);
+
+            }
+
+            //draw a blue Z-shaped piece
+            private void paintZPiece(Graphics g) {
+                g.setColor(Color.blue);
+                g.fillRect(0,0,10,10);
+                g.fillRect(10,0,10,10);
+                g.fillRect(10,10,10,10);
+                g.fillRect(20,10,10,10);
+            }
+
+            //draw an orange cube piece
+            private void paintCubePiece(Graphics g) {
+                g.setColor(Color.orange);
+                g.fillRect(0,0,10,10);
+                g.fillRect(10,0,10,10);
+                g.fillRect(0,10,10,10);
+                g.fillRect(10,10,10,10);
+            }
+
+            //draw a green long piece
+            private void paintLongPiece(Graphics g) {
+                g.setColor(Color.green);
+                g.fillRect(0,0,10,10);
+                g.fillRect(0,10,10,10);
+                g.fillRect(0,20,10,10);
+                g.fillRect(0,30,10,10);
+            }
+        }
             private com.mx85.main.Shape.PIECE nextPiece;
 
             public void setPieceType(com.mx85.main.Shape.PIECE piece) {
